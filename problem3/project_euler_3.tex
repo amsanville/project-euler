@@ -1,0 +1,83 @@
+\documentclass{article}
+\usepackage{mathtools}
+\usepackage{amsmath, amssymb}
+\begin{document}
+\section*{Problem Statement}
+The prime factors of 13195 are 5, 7, 13 and 29. What is the largest prime factor of the number 600,851,475,143?
+\section*{Solution}
+At the heart of this problem is the reason RSA encryption works, it is hard to determine the prime factors of large numbers (512 bits, so around $10^154$). However, for numbers less than $10^{12}$, a computer can quickly test for prime factors. Since I am expecting the number to be divisible by 2 or more primes, I use a recursive algorithm that attempts to divide the number of interest $n$ by all odd numbers (and 2) up to $n/2$. This algorithm is called recursively on each of these factors until it is determined that either $n$ is prime or the factors themselves are prime.
+
+As an example, consider $n = 1105 = 5(13)(17)$. Thus, we start by testing to see if 1105 is divisible, 2, 3, 5, 7, ..., 552. Since it is first divisible by $p_{1} = 5$, we check if $5$ is prime (it is), so it is added to the list of factors. Then, the algorithm checks if $n_{1} = 221$ is prime. To do that, we check numbers below 110, which yields 13 and 17. Note, since the algorithm found $1105 = 5(221)$, it does not need to check anymore. Also, it will return the prime factors from smallest to largest.
+
+From this algorithm:
+\begin{gather*}
+	n = 600,851,475,143 = 71(839)(1471)(6857)
+\end{gather*}
+So the prime factors are 71, 839, 1471, 6857, so 6857 is the largest.
+\subsection*{Optimizations}
+One optimization to this algorithm is that when doing the division search all the odd numbers checked any that cleanly divide the $n$ of interest must be prime. If they are not prime, one of the lower odd numbers must be able to divide them. In turn that number must also be able to divide $n$ and would have been caught by the algorithm earlier. Therefore, number attempting to divide $n$ must always be prime.
+
+A second optimization occurs when stopping the loop, the only values of possible divisors to consider are those less than $\sqrt{n}$. Any number larger than $\sqrt{n}$ must multiply by a number smaller than $\sqrt{n}$, and will thus have already been checked.
+
+A third optimization is in which numbers to check. The algorithm already removes all the evens, but it still tests numbers like 9, 15, 21, etc. A further reduction in non-prime numbers takes advantage of the mod space of 6. Observe that if $a = p \text{ mod } 6$, $a = 0$, 2, 3, or 4 are all numbers $p$ that are divisible by either 2 or 3. This comes from the fact that:
+\begin{align*}
+	p = 6n + 0 = 2(3n)\\
+	p = 6n + 2 = 2(3n + 1)\\
+	p = 6n + 3 = 3(2n + 1)\\
+	p = 6n + 4 = 2(3n + 2)
+\end{align*}
+Thus a more succinct list of numbers to test are those of the form $6n + 1$ or $6n + 5 = 6(n + 1) - 1$.
+
+There are other more complicated algorithms that solve this problem that I may look into in the future. For now though, these optimizations are sufficient.
+\section*{Factorization Rules}
+Here are some common divisibility tests for numbers up to 10:
+\begin{itemize}
+	\item If the last digit is divisible by 2 (so 0, 2, 4, 6, or 8), then the number is divisible by 2. The rule comes from the fact that 10 is divisible by 2. Thus any number larger than 10 is also divisible by 2 if it's last digit is.
+	\item If the sum of the digits is divisible by 3, then the number is divisible by 3.
+	\item If the last two digits are divisible by 4, then the number is divisible by 4. Thus any number larger than 100 is also divisible by 4 if it's last two digits are.
+	\item If the last digit is either a 0 or 5, then the number is divisible by 5. Similar to 2, in that any number larger than 10 is divisible by 5 if it's last digit is.
+	\item If the sum of the digits is divisible by 3 and the number is even, then the number is divisible by 6. This just combines the rules for 2 and 3.
+	\item If the last 3 digits are divisible by 8, then the number is divisible by 8. The rule comes from the fact that 1000 is divisible by 8. Note, in my opinion, it is easier to check if a number is divisible by 2 three times than to check if a number as large as 999 is divisible by 8.
+	\item If the sum of the digits are divisible by 9, then the number is divisible by 9.
+	\item If the last digit is zero, then the number is divisible by 10.
+\end{itemize}
+I don't know of a good rule for 7.
+
+Since the rule for 6 is simply a consequence of the rules for 3 and 2, the two rules of interest are the rules for 3 and 9. Consider then what the digits in base 10 actually mean. By definition:
+\begin{gather*}
+	n = \sum_{i = 0}^{k}d_{i}10^{i}
+\end{gather*}
+for some $k$. In this representation, the $d_{i}$ are the digits of $n$ in base 10. Also, for any value of $i \ge 1$, $10^{i} - 1$ is divisible by 3 and 9, because:
+\begin{gather*}
+	10^{k} - 1 = \sum_{i = 0}^{k - 1}9(10^{i})
+\end{gather*}
+As an example, $k = 3$:
+\begin{gather*}
+	 10^{3} - 1 = 999 = 9(10^{0}) + 9(10^{1}) + 9(10^{2}) = \sum_{i = 0}^{2}9(10^{i})
+\end{gather*}
+Then:
+\begin{gather*}
+	n = \sum_{i = 0}^{k}d_{i}(10^{i} - 1) + d_{i}
+\end{gather*}
+And since:
+\begin{gather*}
+\sum_{i = 0}^{k}d_{i}(10^{i} - 1)
+\end{gather*}
+is divisible by 3 and 9, because all the $10^{i} - 1$ are divisible by 3 and 9. Then, $n$ is divisible by 9 if:
+\begin{gather*}
+	\sum_{i = 0}^{k}d_{i}
+\end{gather*}
+is divisible by 9, giving the rule.
+
+Note, we say a number is divisible by another number if under Euclid's division algorithm, it has remainder 0 (see the Project Euler 1 solution). Or:
+\begin{gather*}
+	n = qp + r
+\end{gather*}
+$p > 0$, $q > r \ge 0$, $n$ is divisible by $p$ if $r = 0$. Consider $a = b + c$. Observe:
+\begin{gather*}
+	b = q_{b}d\\
+	c = q_{c}d\\
+	a = b + c = (q_{b}d + q_{c}d) = (q_{b} + q_{c})d
+\end{gather*}
+So if $b$ and $c$ are divisible then $a$ is divisible. Thus, in the proof above, since a $b$ and $c$ were found, the number $n4$ must be divisible as well.
+\end{document}
