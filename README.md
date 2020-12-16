@@ -3,9 +3,15 @@ My solutions to the Project Euler problems (https://projecteuler.net/). Each fol
 
 ## List of Problems
 Here is a list of all the problems that are either complete or have some work done on them. The ones marked with an 'x' have a complete solution.
+
 [x] Problem 1:
+
 [x] Problem 2:
+
 [x] Problem 3:
-[ ] Problem 4:
+
+[x] Problem 4:
+
 [ ] Problem 6:
-[ ] Problem 8:
+
+[x] Problem 8:
